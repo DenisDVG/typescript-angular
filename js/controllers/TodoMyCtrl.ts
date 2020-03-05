@@ -20,7 +20,8 @@ module todos {
 			'$scope',
 			'$location',
 			'todoStorage',
-			'filterFilter'
+			'filterFilter',
+			'$rootScope'
 		];
 
 		// dependencies are injected via AngularJS $injector
@@ -29,11 +30,13 @@ module todos {
 			private $scope: ITodoMyScope,
 			private $location: ng.ILocationService,
 			private todoStorage: ITodoStorage,
-			private filterFilter
+			private filterFilter,
+			private $rootScope: ng.IRootScopeService
 		) {
 			this.todos = $scope.todos = todoStorage.get();
 
 			$scope.newTodo = 'by def';
+			$scope.newTodoPart = 'add part';
 			$scope.editedTodo = null;
 
 			// 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
@@ -62,12 +65,14 @@ module todos {
 			this.todoStorage.put(this.todos);
 		}
 
-		addTodo() {
+		addTodoMy() {
+			debugger;
 			var newTodo : string = this.$scope.newTodo.trim();
+			var newTodoPart : string = this.$scope.newTodoPart.trim();
 			if (!newTodo.length) {
 				return;
 			}
-
+			this.sentDataToMateController(newTodo);
 			this.todos.push(new TodoItem(newTodo, false));
 			this.$scope.newTodo = '';
 		}
@@ -109,6 +114,11 @@ module todos {
 		markAll(completed: boolean) {
 			this.todos.forEach(todoItem => { todoItem.completed = completed; });
 		}
+
+		sentDataToMateController(value: string){
+			this.$rootScope.$broadcast('TodoMy', value);
+		}
+		
 	}
 
 }

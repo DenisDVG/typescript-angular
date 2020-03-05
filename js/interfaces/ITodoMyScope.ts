@@ -13,5 +13,6 @@ module todos {
 		statusFilter: { completed?: boolean };
 		location: ng.ILocationService;
 		vm: TodoMyCtrl;
+		newTodoPart: string;
 	}
 }

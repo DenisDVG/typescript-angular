@@ -107,12 +107,13 @@ var todos;
     var TodoCtrl = (function () {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function TodoCtrl($scope, $location, todoStorage, filterFilter) {
+        function TodoCtrl($scope, $location, todoStorage, filterFilter, $rootScope) {
             var _this = this;
             this.$scope = $scope;
             this.$location = $location;
             this.todoStorage = todoStorage;
             this.filterFilter = filterFilter;
+            this.$rootScope = $rootScope;
             this.todos = $scope.todos = todoStorage.get();
             $scope.newTodo = '';
             $scope.editedTodo = null;
@@ -123,6 +124,7 @@ var todos;
             // if you subscribe to scope or event with lifetime longer than this controller, make sure you unsubscribe.
             $scope.$watch('todos', function () { return _this.onTodos(); }, true);
             $scope.$watch('location.path()', function (path) { return _this.onPath(path); });
+            $scope.$on('TodoMy', function (event, name) { return _this.getTodoFromContr(name); });
             if ($location.path() === '')
                 $location.path('/');
             $scope.location = $location;
@@ -145,6 +147,9 @@ var todos;
             }
             this.todos.push(new todos.TodoItem(newTodo, false));
             this.$scope.newTodo = '';
+        };
+        TodoCtrl.prototype.getTodoFromContr = function (val) {
+            this.todos.push(new todos.TodoItem(val, false));
         };
         TodoCtrl.prototype.editTodo = function (todoItem) {
             this.$scope.editedTodo = todoItem;
@@ -185,7 +190,8 @@ var todos;
             '$scope',
             '$location',
             'todoStorage',
-            'filterFilter'
+            'filterFilter',
+            '$rootScope'
         ];
         return TodoCtrl;
     }());
@@ -203,14 +209,16 @@ var todos;
     var TodoMyCtrl = (function () {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function TodoMyCtrl($scope, $location, todoStorage, filterFilter) {
+        function TodoMyCtrl($scope, $location, todoStorage, filterFilter, $rootScope) {
             var _this = this;
             this.$scope = $scope;
             this.$location = $location;
             this.todoStorage = todoStorage;
             this.filterFilter = filterFilter;
+            this.$rootScope = $rootScope;
             this.todos = $scope.todos = todoStorage.get();
-            $scope.newTodo = '1';
+            $scope.newTodo = 'by def';
+            $scope.newTodoPart = 'add part';
             $scope.editedTodo = null;
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
@@ -234,11 +242,14 @@ var todos;
             this.$scope.allChecked = !this.$scope.remainingCount;
             this.todoStorage.put(this.todos);
         };
-        TodoMyCtrl.prototype.addTodo = function () {
+        TodoMyCtrl.prototype.addTodoMy = function () {
+            debugger;
             var newTodo = this.$scope.newTodo.trim();
+            var newTodoPart = this.$scope.newTodoPart.trim();
             if (!newTodo.length) {
                 return;
             }
+            this.sentDataToMateController(newTodo);
             this.todos.push(new todos.TodoItem(newTodo, false));
             this.$scope.newTodo = '';
         };
@@ -273,6 +284,9 @@ var todos;
         TodoMyCtrl.prototype.markAll = function (completed) {
             this.todos.forEach(function (todoItem) { todoItem.completed = completed; });
         };
+        TodoMyCtrl.prototype.sentDataToMateController = function (value) {
+            this.$rootScope.$broadcast('TodoMy', value);
+        };
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
@@ -281,7 +295,8 @@ var todos;
             '$scope',
             '$location',
             'todoStorage',
-            'filterFilter'
+            'filterFilter',
+            '$rootScope'
         ];
         return TodoMyCtrl;
     }());

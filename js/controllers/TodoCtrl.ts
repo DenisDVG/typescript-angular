@@ -20,7 +20,8 @@ module todos {
 			'$scope',
 			'$location',
 			'todoStorage',
-			'filterFilter'
+			'filterFilter',
+			'$rootScope'
 		];
 
 		// dependencies are injected via AngularJS $injector
@@ -29,7 +30,8 @@ module todos {
 			private $scope: ITodoScope,
 			private $location: ng.ILocationService,
 			private todoStorage: ITodoStorage,
-			private filterFilter
+			private filterFilter,
+			private $rootScope: ng.IRootScopeService
 		) {
 			this.todos = $scope.todos = todoStorage.get();
 
@@ -43,7 +45,8 @@ module todos {
 			// watching for events/changes in scope, which are caused by view/user input
 			// if you subscribe to scope or event with lifetime longer than this controller, make sure you unsubscribe.
 			$scope.$watch('todos', () => this.onTodos(), true);
-			$scope.$watch('location.path()', path => this.onPath(path))
+			$scope.$watch('location.path()', path => this.onPath(path));
+			$scope.$on('TodoMy', (event, name) => this.getTodoFromContr(name));
 
 			if ($location.path() === '') $location.path('/');
 			$scope.location = $location;
@@ -70,6 +73,10 @@ module todos {
 
 			this.todos.push(new TodoItem(newTodo, false));
 			this.$scope.newTodo = '';
+		}
+
+		getTodoFromContr(val: string){
+			this.todos.push(new TodoItem(val, false));
 		}
 
 		editTodo(todoItem: TodoItem) {

@@ -10,6 +10,7 @@ module todos {
 
     var todomvc = angular.module('todomvc', [])
             .controller('todoCtrl', TodoCtrl)
+            .controller('todoMyCtrl', TodoMyCtrl)
             .directive('todoBlur', todoBlur)
             .directive('todoFocus', todoFocus)
             .directive('todoEscape', todoEscape)

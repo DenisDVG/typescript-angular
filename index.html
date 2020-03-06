@@ -10,7 +10,7 @@
 	<body>
 		<section class="todoapp" ng-controller="todoCtrl">
 			<header class="header">
-				<h1>todos</h1>
+				<h1></h1>
 				<form class="todo-form" ng-submit="vm.addTodo()">
 					<input class="new-todo" placeholder="What needs to be done?" ng-model="newTodo" autofocus>
 				</form>
@@ -48,6 +48,10 @@
 				</ul>
 				<button class="clear-completed" ng-click="vm.clearDoneTodos()" ng-show="doneCount">Clear completed</button>
 			</footer>
+			<div class="view">
+				<label>{{shareDataServiceScoupe.getIncr()}}</label>
+				<button class="destroy" ng-click="vm.addIncrNeighbContr()">Incr Neighb Contr</button>
+			</div>
 		</section>
 		<section class="todoapp" ng-controller="todoMyCtrl">
 			<header class="header">
@@ -89,6 +93,10 @@
 				</ul>
 				<button class="clear-completed" ng-click="vm.clearDoneTodos()" ng-show="doneCount">Clear completed</button>
 			</footer>
+			<div class="view">
+				<label>{{incrNeighbContr}}</label>
+				<button class="destroy" ng-click="vm.shareDataService.getIncr()">Incr Neighb Contr</button>
+			</div>
 		</section>
 		<footer class="info">
 			<p>Double-click to edit a todo</p>

@@ -15,6 +15,7 @@ var todos;
 /// <reference path='../_all.ts' />
 /// <reference path='../_all.ts' />
 /// <reference path='../_all.ts' />
+/// <reference path='../_all.ts' />
 var todos;
 (function (todos) {
     'use strict';
@@ -100,6 +101,27 @@ var todos;
 (function (todos) {
     'use strict';
     /**
+     * Services that persists and retrieves TODOs from localStorage.
+     */
+    var ShareDataService = (function () {
+        function ShareDataService() {
+            this.incr = 0;
+        }
+        ShareDataService.prototype.getIncr = function () {
+            return this.incr;
+        };
+        ShareDataService.prototype.setIncr = function (incr) {
+            this.incr = incr;
+        };
+        return ShareDataService;
+    }());
+    todos.ShareDataService = ShareDataService;
+})(todos || (todos = {}));
+/// <reference path='../_all.ts' />
+var todos;
+(function (todos) {
+    'use strict';
+    /**
      * The main controller for the app. The controller:
      * - retrieves and persists the model via the todoStorage service
      * - exposes the model to the template and provides event handlers
@@ -107,28 +129,44 @@ var todos;
     var TodoCtrl = (function () {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function TodoCtrl($scope, $location, todoStorage, filterFilter, $rootScope) {
+        function TodoCtrl($scope, $location, todoStorage, filterFilter, $rootScope, shareDataService) {
             var _this = this;
             this.$scope = $scope;
             this.$location = $location;
             this.todoStorage = todoStorage;
             this.filterFilter = filterFilter;
             this.$rootScope = $rootScope;
+            this.shareDataService = shareDataService;
             this.todos = $scope.todos = todoStorage.get();
+            this.incrNeighbContr = $scope.incrNeighbContr = shareDataService.getIncr();
             $scope.newTodo = '';
             $scope.editedTodo = null;
+            $scope.incrNeighbContr = 0;
+            $scope.shareDataServiceScoupe = shareDataService;
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
             // watching for events/changes in scope, which are caused by view/user input
             // if you subscribe to scope or event with lifetime longer than this controller, make sure you unsubscribe.
             $scope.$watch('todos', function () { return _this.onTodos(); }, true);
+            $scope.$watch('incrNeighbContr', function () { return _this.onShare(); }, true);
+            $scope.$watch('scope.shareDataServiceScoupe', function () { return _this.onShareDataServiceScoupe(); }, true);
             $scope.$watch('location.path()', function (path) { return _this.onPath(path); });
             $scope.$on('TodoMy', function (event, name) { return _this.getTodoFromContr(name); });
             if ($location.path() === '')
                 $location.path('/');
             $scope.location = $location;
         }
+        TodoCtrl.prototype.onShareDataServiceScoupe = function () {
+            debugger;
+        };
+        TodoCtrl.prototype.onShare = function () {
+            //this.incrNeighbContr = this.shareDataService.getIncr();
+        };
+        TodoCtrl.prototype.addIncrNeighbContr = function () {
+            this.$scope.incrNeighbContr++;
+            this.shareDataService.setIncr(this.$scope.incrNeighbContr);
+        };
         TodoCtrl.prototype.onPath = function (path) {
             this.$scope.statusFilter = (path === '/active') ?
                 { completed: false } : (path === '/completed') ?
@@ -191,7 +229,8 @@ var todos;
             '$location',
             'todoStorage',
             'filterFilter',
-            '$rootScope'
+            '$rootScope',
+            'shareDataService'
         ];
         return TodoCtrl;
     }());
@@ -209,14 +248,16 @@ var todos;
     var TodoMyCtrl = (function () {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function TodoMyCtrl($scope, $location, todoStorage, filterFilter, $rootScope) {
+        function TodoMyCtrl($scope, $location, todoStorage, filterFilter, $rootScope, shareDataService) {
             var _this = this;
             this.$scope = $scope;
             this.$location = $location;
             this.todoStorage = todoStorage;
             this.filterFilter = filterFilter;
             this.$rootScope = $rootScope;
+            this.shareDataService = shareDataService;
             this.todos = $scope.todos = todoStorage.get();
+            this.incrNeighbContr = $scope.incrNeighbContr = shareDataService.getIncr();
             $scope.newTodo = 'by def';
             $scope.newTodoPart = 'add part';
             $scope.editedTodo = null;
@@ -231,6 +272,9 @@ var todos;
                 $location.path('/');
             $scope.location = $location;
         }
+        TodoMyCtrl.prototype.addIncrNeighbContr = function () {
+            this.shareDataService.setIncr(this.shareDataService.getIncr() + 1);
+        };
         TodoMyCtrl.prototype.onPath = function (path) {
             this.$scope.statusFilter = (path === '/active') ?
                 { completed: false } : (path === '/completed') ?
@@ -296,7 +340,8 @@ var todos;
             '$location',
             'todoStorage',
             'filterFilter',
-            '$rootScope'
+            '$rootScope',
+            'shareDataService'
         ];
         return TodoMyCtrl;
     }());
@@ -317,7 +362,8 @@ var todos;
         .directive('todoBlur', todos.todoBlur)
         .directive('todoFocus', todos.todoFocus)
         .directive('todoEscape', todos.todoEscape)
-        .service('todoStorage', todos.TodoStorage);
+        .service('todoStorage', todos.TodoStorage)
+        .service('shareDataService', todos.ShareDataService);
 })(todos || (todos = {}));
 /// <reference path='libs/jquery/jquery.d.ts' />
 /// <reference path='libs/angular/angular.d.ts' />
@@ -325,10 +371,12 @@ var todos;
 /// <reference path='interfaces/ITodoScope.ts' />
 /// <reference path='interfaces/ITodoMyScope.ts' />
 /// <reference path='interfaces/ITodoStorage.ts' />
+/// <reference path='interfaces/IShareDataService.ts' />
 /// <reference path='directives/TodoFocus.ts' />
 /// <reference path='directives/TodoBlur.ts' />
 /// <reference path='directives/TodoEscape.ts' />
 /// <reference path='services/TodoStorage.ts' />
+/// <reference path='services/ShareDataService.ts' />
 /// <reference path='controllers/TodoCtrl.ts' />
 /// <reference path='controllers/TodoMyCtrl.ts' />
 /// <reference path='Application.ts' />

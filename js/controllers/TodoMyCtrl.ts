@@ -11,6 +11,7 @@ module todos {
 	export class TodoMyCtrl {
 
 		private todos: TodoItem[];
+		private incrNeighbContr: number;
 
 		// $inject annotation.
 		// It provides $injector with information about dependencies to be injected into constructor
@@ -21,7 +22,8 @@ module todos {
 			'$location',
 			'todoStorage',
 			'filterFilter',
-			'$rootScope'
+			'$rootScope',
+			'shareDataService'
 		];
 
 		// dependencies are injected via AngularJS $injector
@@ -31,9 +33,12 @@ module todos {
 			private $location: ng.ILocationService,
 			private todoStorage: ITodoStorage,
 			private filterFilter,
-			private $rootScope: ng.IRootScopeService
+			private $rootScope: ng.IRootScopeService,
+			private shareDataService: IShareDataService
 		) {
 			this.todos = $scope.todos = todoStorage.get();
+			this.incrNeighbContr = $scope.incrNeighbContr = shareDataService.getIncr();
+			$scope.shareDataServiceScoupe = shareDataService;
 
 			$scope.newTodo = 'by def';
 			$scope.newTodoPart = 'add part';
@@ -51,7 +56,10 @@ module todos {
 			if ($location.path() === '') $location.path('/');
 			$scope.location = $location;
 		}
-
+		addIncrNeighbContr(){
+			this.$scope.incrNeighbContr++;
+			this.shareDataService.setIncr(this.$scope.incrNeighbContr);
+		}
 		onPath(path: string) {
 			this.$scope.statusFilter = (path === '/active') ?
 				{ completed: false } : (path === '/completed') ?

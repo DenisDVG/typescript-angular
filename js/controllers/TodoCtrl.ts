@@ -9,8 +9,8 @@ module todos {
 	 * - exposes the model to the template and provides event handlers
 	 */
 	export class TodoCtrl {
-
 		private todos: TodoItem[];
+		private incrNeighbContr: number;
 
 		// $inject annotation.
 		// It provides $injector with information about dependencies to be injected into constructor
@@ -21,7 +21,8 @@ module todos {
 			'$location',
 			'todoStorage',
 			'filterFilter',
-			'$rootScope'
+			'$rootScope',
+			'shareDataService'
 		];
 
 		// dependencies are injected via AngularJS $injector
@@ -31,12 +32,15 @@ module todos {
 			private $location: ng.ILocationService,
 			private todoStorage: ITodoStorage,
 			private filterFilter,
-			private $rootScope: ng.IRootScopeService
+			private $rootScope: ng.IRootScopeService,
+			private shareDataService: IShareDataService
 		) {
 			this.todos = $scope.todos = todoStorage.get();
-
+			this.incrNeighbContr = $scope.incrNeighbContr = shareDataService.getIncr();
 			$scope.newTodo = '';
 			$scope.editedTodo = null;
+			$scope.incrNeighbContr = 0;
+			$scope.shareDataServiceScoupe = shareDataService;
 
 			// 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
 			// for its methods to be accessible from view / HTML
@@ -45,11 +49,27 @@ module todos {
 			// watching for events/changes in scope, which are caused by view/user input
 			// if you subscribe to scope or event with lifetime longer than this controller, make sure you unsubscribe.
 			$scope.$watch('todos', () => this.onTodos(), true);
+			$scope.$watch('incrNeighbContr', () => this.onShare(), true);
+			$scope.$watch('scope.shareDataServiceScoupe', () => this.onShareDataServiceScoupe(), true);
 			$scope.$watch('location.path()', path => this.onPath(path));
 			$scope.$on('TodoMy', (event, name) => this.getTodoFromContr(name));
 
 			if ($location.path() === '') $location.path('/');
 			$scope.location = $location;
+		}
+
+		onShareDataServiceScoupe(): any {
+			debugger;
+		}
+
+		onShare(): any {
+			//this.incrNeighbContr = this.shareDataService.getIncr();
+		}
+
+		addIncrNeighbContr(){
+			this.$scope.incrNeighbContr++;
+			this.shareDataService.setIncr(this.$scope.incrNeighbContr);
+
 		}
 
 		onPath(path: string) {

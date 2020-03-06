@@ -14,5 +14,7 @@ module todos {
 		location: ng.ILocationService;
 		vm: TodoMyCtrl;
 		newTodoPart: string;
+		incrNeighbContr: number;
+		shareDataServiceScoupe: IShareDataService;
 	}
 }

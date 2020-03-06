@@ -14,5 +14,6 @@ module todos {
             .directive('todoBlur', todoBlur)
             .directive('todoFocus', todoFocus)
             .directive('todoEscape', todoEscape)
-            .service('todoStorage', TodoStorage);
+            .service('todoStorage', TodoStorage)
+            .service('shareDataService', ShareDataService);
 }
